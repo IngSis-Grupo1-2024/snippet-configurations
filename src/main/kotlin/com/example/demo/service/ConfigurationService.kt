@@ -13,15 +13,16 @@ class ConfigurationService(
     private val configurationRepository: ConfigurationRepository,
     private val versionRepository: VersionRepository,
     private val ruleRepository: RuleRepository,
+    private val languageRepository: LanguageRepository,
     private val ruleTypeRepository: RuleTypeRepository,
     private val ruleDescriptionRepository: RuleDescriptionRepository
 ) {
 
     fun createConfiguration(configurationDTO: ConfigurationDTO) {
         val versionObject = this.versionRepository.findByNumber(configurationDTO.version)!!
-        val configuration = this.configurationRepository.save(Configuration(versionObject, configurationDTO.userId))
+        val language = this.languageRepository.findByName(configurationDTO.language)!!
+        val configuration = this.configurationRepository.save(Configuration(versionObject, language,configurationDTO.userId))
         seedRules(configuration)
-
     }
 
     fun getRulesByType(inputGetRulesDto: InputGetRulesDto): List<GetRulesDTO> {

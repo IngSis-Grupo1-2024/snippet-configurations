@@ -7,10 +7,14 @@ import jakarta.persistence.*
 data class Configuration(
 
     @ManyToOne
-    @JoinColumn(name = "version_number", nullable = false)
+    @JoinColumn(name = "version_id", nullable = false)
     var version: Version,
 
-    @Column(length = 512, unique = true)
+    @ManyToOne
+    @JoinColumn(name = "language_id", nullable = false)
+    var language: Language,
+
+    @Column(length = 512)
     var userId: String,
 
     @OneToMany(mappedBy = "configuration")
@@ -22,6 +26,6 @@ data class Configuration(
     var id: Long? = null
 
 
-    constructor() : this(Version(), "")
+    constructor() : this(Version(), Language(), "")
 
 }
