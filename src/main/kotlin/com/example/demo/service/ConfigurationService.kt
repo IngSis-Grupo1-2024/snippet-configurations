@@ -5,6 +5,7 @@ import com.example.demo.dto.output.RulesDto
 import com.example.demo.dto.rule.GetRulesDTO
 import com.example.demo.dto.rule.InputGetRulesDto
 import com.example.demo.dto.rule.UpdateRuleDTO
+import com.example.demo.exception.NotFoundException
 import com.example.demo.model.*
 import com.example.demo.repository.*
 import org.springframework.stereotype.Service
@@ -27,7 +28,8 @@ class ConfigurationService(
 
     fun getRulesByType(inputGetRulesDto: InputGetRulesDto): RulesDto {
         val ruleType = this.ruleTypeRepository.findByType(inputGetRulesDto.ruleType)!!
-        val configuration = this.configurationRepository.findByUserId(inputGetRulesDto.userId)!!
+        val configuration = this.configurationRepository.findByUserId(inputGetRulesDto.userId)
+            ?: throw NotFoundException("The user doesn't have rules.")
         val rules: List<Rule> = this.ruleRepository.findByRuleTypeAndConfiguration(ruleType, configuration)
         return RulesDto(rules.map { rule ->
            GetRulesDTO(rule.ruleDescription.description, rule.isActive, rule.amount.toString())
