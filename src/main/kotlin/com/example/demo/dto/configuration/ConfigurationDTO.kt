@@ -6,5 +6,7 @@ class ConfigurationDTO(
     @NotBlank(message = "The userId cannot be blank")
     var userId: String,
     @NotBlank(message = "The version cannot be blank")
-    var version: String
+    var version: String,
+    @NotBlank(message = "The language cannot be blank")
+    var language: String
 )
