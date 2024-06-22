@@ -1,5 +1,6 @@
 package com.example.demo.controller
 import com.example.demo.dto.configuration.ConfigurationDTO
+import com.example.demo.dto.output.RulesDto
 import com.example.demo.dto.rule.GetRulesDTO
 import com.example.demo.dto.rule.InputGetRulesDto
 import com.example.demo.dto.rule.UpdateRuleDTO
@@ -35,8 +36,9 @@ class ConfigurationController(private val configurationService: ConfigurationSer
 
     @GetMapping("/configuration/rules")
     fun getLintingRules(@RequestParam("userId") userId: String,
-                        @RequestParam("ruleType") ruleType: String): ResponseEntity<List<GetRulesDTO>> {
-        return ResponseEntity.ok(this.configurationService.getRulesByType(InputGetRulesDto(userId, ruleType)))
+                        @RequestParam("ruleType") ruleType: String): ResponseEntity<RulesDto> {
+        val rules = this.configurationService.getRulesByType(InputGetRulesDto(userId, ruleType))
+        return ResponseEntity.ok(rules)
     }
 }
 

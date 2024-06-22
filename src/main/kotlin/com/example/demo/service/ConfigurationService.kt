@@ -1,6 +1,7 @@
 package com.example.demo.service
 
 import com.example.demo.dto.configuration.ConfigurationDTO
+import com.example.demo.dto.output.RulesDto
 import com.example.demo.dto.rule.GetRulesDTO
 import com.example.demo.dto.rule.InputGetRulesDto
 import com.example.demo.dto.rule.UpdateRuleDTO
@@ -24,12 +25,13 @@ class ConfigurationService(
 
     }
 
-    fun getRulesByType(inputGetRulesDto: InputGetRulesDto): List<GetRulesDTO> {
+    fun getRulesByType(inputGetRulesDto: InputGetRulesDto): RulesDto {
         val ruleType = this.ruleTypeRepository.findByType(inputGetRulesDto.ruleType)!!
         val configuration = this.configurationRepository.findByUserId(inputGetRulesDto.userId)!!
-        return this.ruleRepository.findByRuleTypeAndConfiguration(ruleType, configuration).map { rule ->
+        val rules: List<Rule> = this.ruleRepository.findByRuleTypeAndConfiguration(ruleType, configuration)
+        return RulesDto(rules.map { rule ->
            GetRulesDTO(rule.ruleDescription.description, rule.isActive, rule.amount.toString())
-        }
+        })
     }
 
     fun updateVersion(configurationDTO: ConfigurationDTO) {
