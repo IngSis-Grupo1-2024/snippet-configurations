@@ -1,5 +1,6 @@
 package com.example.demo.seed
 
+import com.example.demo.model.Language
 import com.example.demo.model.*
 import com.example.demo.repository.*
 import jakarta.transaction.Transactional
@@ -15,8 +16,10 @@ class Seed @Autowired constructor(
     private val configurationRepository: ConfigurationRepository,
     private val ruleDescriptionRepository: RuleDescriptionRepository,
     private val ruleRepository: RuleRepository,
+    private val languageRepository: LanguageRepository,
     private val versionRepository: VersionRepository,
-    private val ruleTypeRepository: RuleTypeRepository
+    private val ruleTypeRepository: RuleTypeRepository,
+    private val variableTypeRepository: VariableTypeRepository
 
 ): CommandLineRunner{
 
@@ -52,5 +55,13 @@ class Seed @Autowired constructor(
         val secondVersion = Version("1.1.0")
         this.versionRepository.save(firstVersion)
         this.versionRepository.save(secondVersion)
+        val language = Language("PRINTSCRIPT")
+        this.languageRepository.save(language)
+        val env = VariableType("ENVIRONMENT")
+        val input = VariableType("INPUT")
+        val output = VariableType("OUTPUT")
+        this.variableTypeRepository.save(env)
+        this.variableTypeRepository.save(input)
+        this.variableTypeRepository.save(output)
     }
 }
