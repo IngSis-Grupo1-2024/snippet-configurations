@@ -17,9 +17,7 @@ data class Variable(
 
     @ManyToOne
     @JoinColumn(name = "variable_type_id", nullable = false)
-    var variableType: VariableType,
-
-
+    var variableType: VariableType=VariableType(),
 ) {
 
         @Id

@@ -7,8 +7,8 @@ import jakarta.persistence.*
 data class VariableType(
     val name: String = "",
 
-    @OneToMany(mappedBy = "snippet_variables")
-    var configurations: List<Configuration> = ArrayList()
+    @OneToMany(mappedBy = "variableType")
+    var variables: List<Variable> = ArrayList()
 ) {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
