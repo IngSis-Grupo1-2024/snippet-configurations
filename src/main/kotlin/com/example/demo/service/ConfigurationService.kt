@@ -1,9 +1,7 @@
 package com.example.demo.service
 
 import com.example.demo.dto.configuration.ConfigurationDTO
-import com.example.demo.dto.rule.GetRulesDTO
-import com.example.demo.dto.rule.InputGetRulesDto
-import com.example.demo.dto.rule.UpdateRuleDTO
+import com.example.demo.exception.NotFoundException
 import com.example.demo.model.*
 import com.example.demo.repository.*
 import org.springframework.stereotype.Service
@@ -19,35 +17,39 @@ class ConfigurationService(
 ) {
 
     fun createConfiguration(configurationDTO: ConfigurationDTO) {
-        val versionObject = this.versionRepository.findByNumber(configurationDTO.version)!!
-        val language = this.languageRepository.findByName(configurationDTO.language)!!
-        val configuration = this.configurationRepository.save(Configuration(versionObject, language,configurationDTO.userId))
-        seedRules(configuration)
-    }
-
-    fun getRulesByType(inputGetRulesDto: InputGetRulesDto): List<GetRulesDTO> {
-        val ruleType = this.ruleTypeRepository.findByType(inputGetRulesDto.ruleType)!!
-        val configuration = this.configurationRepository.findByUserId(inputGetRulesDto.userId)!!
-        return this.ruleRepository.findByRuleTypeAndConfiguration(ruleType, configuration).map { rule ->
-           GetRulesDTO(rule.ruleDescription.description, rule.isActive, rule.amount.toString())
+        try {
+            val versionObject = this.versionRepository.findByNumber(configurationDTO.version)?: throw NotFoundException("Version not found")
+            val language = this.languageRepository.findByName(configurationDTO.language) ?: throw NotFoundException("Language not found")
+            val configuration = this.configurationRepository.save(Configuration(versionObject, language,configurationDTO.userId))
+            seedRules(configuration)
+        }catch (e: Exception){
+            throw e
         }
     }
 
-    fun updateVersion(configurationDTO: ConfigurationDTO) {
-        val configuration = this.configurationRepository.findByUserId(configurationDTO.userId)!!
-        val versionObject = this.versionRepository.findByNumber(configurationDTO.version)!!
-        configuration.version = versionObject
-        this.configurationRepository.save(configuration)
+    fun getUserConfiguration(userId:String):Configuration{
+        try {
+            val configuration = this.configurationRepository.findByUserId(userId)?: throw NotFoundException("The user has no configuration")
+            return configuration
+        }catch (e:Exception){
+            throw e
+        }
     }
 
-    fun updateRule(ruleDTO: UpdateRuleDTO) {
-        val configuration = this.configurationRepository.findByUserId(ruleDTO.userId)!!
-        val ruleDescription = this.ruleDescriptionRepository.findByDescription(ruleDTO.description)!!
-        val rule = this.ruleRepository.findByRuleDescriptionAndConfiguration(ruleDescription, configuration)!!
-        rule.isActive = ruleDTO.isActive
-        rule.amount = ruleDTO.amount
-        this.ruleRepository.save(rule)
-    }
+    fun updateConfiguration(configurationDTO: ConfigurationDTO) {
+        try {
+            val configuration = this.getUserConfiguration(configurationDTO.userId)
+            val language = this.languageRepository.findByName(configurationDTO.language)?: throw NotFoundException("The language was not found")
+            val version = this.versionRepository.findByNumber(configurationDTO.version)?: throw NotFoundException("The version was not found")
+            configuration.version = version
+            configuration.language = language
+            this.configurationRepository.save(configuration)
+
+        }catch (e: Exception){
+            throw e
+        }
+        }
+
 
     private fun seedRules(configuration: Configuration){
         val formatting = ruleTypeRepository.findByType("FORMATTING")!!

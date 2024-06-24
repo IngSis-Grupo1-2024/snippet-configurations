@@ -8,7 +8,11 @@ data class Language(
     val name: String = "",
 
     @OneToMany(mappedBy = "language")
-    var configurations: List<Configuration> = ArrayList()
+    var configurations: List<Configuration> = ArrayList(),
+
+    @OneToMany(mappedBy="version")
+    var versions: List<Version> = ArrayList()
+
 ) {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

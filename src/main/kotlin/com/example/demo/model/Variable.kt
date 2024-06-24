@@ -19,7 +19,6 @@ data class Variable(
     @JoinColumn(name = "variable_type_id", nullable = false)
     var variableType: VariableType,
 
-
 ) {
 
         @Id
