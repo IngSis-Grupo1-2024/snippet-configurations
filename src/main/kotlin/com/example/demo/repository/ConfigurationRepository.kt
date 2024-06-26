@@ -8,5 +8,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 interface ConfigurationRepository : JpaRepository<Configuration, Long>{
     fun findByUserId(userId: String): Configuration?
-    fun findByUserIdAndVersionNumberAndLanguageName(userId: String, version: String, language: String): Configuration?
+    fun findByUserIdAndVersionAndLanguage(userId: String, version: Version, language: Language): Configuration?
 }

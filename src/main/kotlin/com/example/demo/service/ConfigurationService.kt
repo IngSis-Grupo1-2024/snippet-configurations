@@ -21,9 +21,9 @@ class ConfigurationService(
 ) {
 
     fun createConfiguration(configurationDTO: ConfigurationDTO) {
-        val versionObject = this.versionRepository.findByNumber(configurationDTO.version)!!
-        val language = this.languageRepository.findByName(configurationDTO.language)!!
-        var configuration = this.configurationRepository.findByUserIdAndVersionNumberAndLanguageName(configurationDTO.userId, configurationDTO.version, configurationDTO.language)
+        val versionObject = this.versionRepository.findByNumber(configurationDTO.version) ?: this.versionRepository.save(Version(configurationDTO.version))
+        val language = this.languageRepository.findByName(configurationDTO.language) ?: this.languageRepository.save(Language(configurationDTO.language))
+        var configuration = this.configurationRepository.findByUserIdAndVersionAndLanguage(configurationDTO.userId, versionObject, language)
         if(configuration == null) {
             configuration = this.configurationRepository.save(Configuration(versionObject, language, configurationDTO.userId))
             seedRules(configuration)

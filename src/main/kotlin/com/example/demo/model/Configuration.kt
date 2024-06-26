@@ -3,7 +3,11 @@ package com.example.demo.model
 import jakarta.persistence.*
 
 @Entity
-@Table(name = "CONFIGURATION")
+@Table(
+    name = "CONFIGURATION",
+    uniqueConstraints = [
+        UniqueConstraint(columnNames = ["language_id", "user_id"])
+    ])
 data class Configuration(
 
     @ManyToOne
@@ -14,7 +18,7 @@ data class Configuration(
     @JoinColumn(name = "language_id", nullable = false)
     var language: Language,
 
-    @Column(length = 512)
+    @Column(length = 512, name = "user_id", nullable = false)
     var userId: String,
 
     @OneToMany(mappedBy = "configuration")
