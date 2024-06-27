@@ -3,6 +3,8 @@ package com.example.demo.seed
 import com.example.demo.model.Language
 import com.example.demo.model.*
 import com.example.demo.repository.*
+import com.example.demo.testCase.model.entity.VariableType
+import com.example.demo.testCase.repository.VariableTypeRepository
 import jakarta.transaction.Transactional
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.CommandLineRunner
@@ -65,3 +67,5 @@ class Seed @Autowired constructor(
         this.variableTypeRepository.save(output)
     }
 }
+
+

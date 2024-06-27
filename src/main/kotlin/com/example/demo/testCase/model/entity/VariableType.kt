@@ -1,4 +1,4 @@
-package com.example.demo.model
+package com.example.demo.testCase.model.entity
 
 import jakarta.persistence.*
 
@@ -16,3 +16,5 @@ data class VariableType(
 
     constructor() : this("")
 }
+
+
