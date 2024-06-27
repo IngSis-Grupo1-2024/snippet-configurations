@@ -33,7 +33,6 @@ class ConfigurationService(
     fun getRulesByType(inputGetRulesDto: InputGetRulesDto): RulesDto {
         val ruleType = this.ruleTypeRepository.findByType(inputGetRulesDto.ruleType)!!
         val configuration = this.configurationRepository.findByUserId(inputGetRulesDto.userId).first()
-            ?: throw NotFoundException("The user doesn't have rules.")
         val rules: List<Rule> = this.ruleRepository.findByRuleTypeAndConfiguration(ruleType, configuration)
         return RulesDto(rules.map { rule ->
            GetRulesDTO(rule.id!!, rule.ruleDescription.description, rule.isActive, rule.amount)
