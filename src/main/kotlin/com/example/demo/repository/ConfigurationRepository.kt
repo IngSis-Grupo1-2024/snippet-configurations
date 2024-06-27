@@ -7,6 +7,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 interface ConfigurationRepository : JpaRepository<Configuration, Long>{
-    fun findByUserId(userId: String): Configuration?
+    fun findByUserId(userId: String): List<Configuration>
     fun findByUserIdAndVersionAndLanguage(userId: String, version: Version, language: Language): Configuration?
 }

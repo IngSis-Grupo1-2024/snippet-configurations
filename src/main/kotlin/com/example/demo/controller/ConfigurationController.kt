@@ -1,14 +1,16 @@
 package com.example.demo.controller
 import com.example.demo.dto.configuration.ConfigurationDTO
 import com.example.demo.dto.output.RulesDto
-import com.example.demo.dto.rule.GetRulesDTO
 import com.example.demo.dto.rule.InputGetRulesDto
 import com.example.demo.dto.rule.UpdateRuleDTO
+import com.example.demo.dto.rule.UpdateRulesDTO
 import com.example.demo.exception.NotFoundException
 import com.example.demo.service.ConfigurationService
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.core.annotation.AuthenticationPrincipal
+import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -25,9 +27,18 @@ class ConfigurationController(private val configurationService: ConfigurationSer
     }
 
     @PostMapping("/configuration/update_rule")
-    fun addRule(@Valid @RequestBody updateRuleDTO: UpdateRuleDTO): ResponseEntity<String> {
-        this.configurationService.updateRule(updateRuleDTO)
+    fun updateRule(@AuthenticationPrincipal jwt: Jwt,
+                   @Valid @RequestBody updateRuleDTO: UpdateRuleDTO): ResponseEntity<String> {
+        this.configurationService.updateRule(updateRuleDTO, jwt.subject)
         return ResponseEntity.ok().build<String>()
+    }
+
+    @PostMapping("/configuration/update_rules")
+    fun updateRules(@AuthenticationPrincipal jwt: Jwt,
+                    @Valid @RequestBody updateRulesDTO: UpdateRulesDTO): ResponseEntity<RulesDto> {
+        val userId = jwt.subject
+        val rulesDto = this.configurationService.updateRules(updateRulesDTO.rules, userId)
+        return ResponseEntity.ok(rulesDto)
     }
 
     @PostMapping("/configuration/update")
@@ -37,10 +48,10 @@ class ConfigurationController(private val configurationService: ConfigurationSer
     }
 
     @GetMapping("/configuration/rules")
-    fun getLintingRules(@RequestParam("userId") userId: String,
+    fun getLintingRules(@AuthenticationPrincipal jwt: Jwt,
                         @RequestParam("ruleType") ruleType: String): ResponseEntity<Any> {
         try {
-            val rules = this.configurationService.getRulesByType(InputGetRulesDto(userId, ruleType))
+            val rules = this.configurationService.getRulesByType(InputGetRulesDto(jwt.subject, ruleType))
             return ResponseEntity.ok(rules)
         } catch (e: NotFoundException) {
             val response = ResponseEntity.status(HttpStatus.NOT_FOUND)

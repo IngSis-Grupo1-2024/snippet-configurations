@@ -19,7 +19,7 @@ data class Rule(
     var ruleDescription: RuleDescription,
 
     @Column
-    var amount: Int,
+    var amount: Int?,
 
     @Column
     var isActive: Boolean = false

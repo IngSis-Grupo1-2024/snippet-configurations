@@ -4,7 +4,7 @@ import jakarta.persistence.*
 @Entity
 @Table(name = "LANGUAGE")
 data class Language(
-    @Column(length = 512)
+    @Column(length = 512, unique = true)
     val name: String = "",
 
     @OneToMany(mappedBy = "language")
