@@ -9,10 +9,6 @@ data class Language(
 
     @OneToMany(mappedBy = "language")
     var configurations: List<Configuration> = ArrayList(),
-
-    @OneToMany(mappedBy="version")
-    var versions: List<Version> = ArrayList()
-
 ) {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -20,7 +16,9 @@ data class Language(
 
     companion object {
         fun fromNumber(name: String): Language {
-            return Language(name = name)
+            return Language( name)
         }
     }
+
+    constructor() : this( "", emptyList())
 }

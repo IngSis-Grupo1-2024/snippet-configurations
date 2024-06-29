@@ -17,15 +17,14 @@ data class Configuration(
     @Column(length = 512, name = "user_id", nullable = false)
     var userId: String,
 
-    @OneToMany(mappedBy = "configuration")
-    var rules: List<Rule> = ArrayList()
-
+    @Column(length = 512, name = "version_id", nullable = false)
+    var version: String,
 ) {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     var id: Long? = null
 
 
-    constructor() : this( Language(), "")
+    constructor() : this( Language(), "", "")
 
 }

@@ -10,9 +10,8 @@ data class Rule(
     @JoinColumn(name = "rule_type_id", nullable = false)
     var ruleType: RuleType,
 
-    @ManyToOne
-    @JoinColumn(name = "configuration_id", nullable = false)
-    var configuration: Configuration,
+    @Column
+    var userId: String,
 
     @ManyToOne
     @JoinColumn(name = "rule_description_id", nullable = false)
@@ -29,5 +28,5 @@ data class Rule(
     val id: Long? = null
 
 
-    constructor() : this(RuleType(), Configuration(),RuleDescription(), 0)
+    constructor() : this(RuleType(), "",RuleDescription(), 0)
 }

@@ -8,6 +8,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 interface RuleRepository : JpaRepository<Rule, Long>{
-    fun findByRuleDescriptionAndConfiguration(ruleDescription: RuleDescription, configuration: Configuration): Rule?
-    fun findByRuleTypeAndConfiguration(ruleType: RuleType, configuration: Configuration): List<Rule>
+    fun findByRuleDescriptionAndUserId(ruleDescription: RuleDescription, userId: String): Rule?
+    fun findByRuleTypeAndUserId(ruleType: RuleType, userId: String): List<Rule>
 }

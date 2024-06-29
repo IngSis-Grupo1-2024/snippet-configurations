@@ -1,9 +1,12 @@
 package com.example.demo.service
 
+import com.example.demo.dto.output.RulesDto
 import com.example.demo.dto.rule.GetRulesDTO
 import com.example.demo.dto.rule.InputGetRulesDto
 import com.example.demo.dto.rule.UpdateRuleDTO
+import com.example.demo.dto.rule.UpdateRulesDTO
 import com.example.demo.exception.NotFoundException
+import com.example.demo.model.Rule
 import com.example.demo.repository.RuleDescriptionRepository
 import com.example.demo.repository.RuleRepository
 import com.example.demo.repository.RuleTypeRepository
@@ -14,16 +17,14 @@ import org.springframework.stereotype.Service
 class RuleService(
     private val ruleTypeRepository: RuleTypeRepository,
     private val ruleDescriptionRepository: RuleDescriptionRepository,
-    private val configurationService: ConfigurationService,
     private val ruleRepository: RuleRepository,
 ) {
 
-    fun getRulesByType(inputGetRulesDto: InputGetRulesDto): List<GetRulesDTO> {
+    fun getRulesByType(inputGetRulesDto: InputGetRulesDto, userId: String): List<GetRulesDTO> {
         try{
             val ruleType = this.ruleTypeRepository.findByType(inputGetRulesDto.ruleType)?: throw NotFoundException("Rule type not found")
-            val configuration = this.configurationService.getUserConfiguration(inputGetRulesDto.userId)
-            return this.ruleRepository.findByRuleTypeAndConfiguration(ruleType, configuration).map { rule ->
-                GetRulesDTO(rule.ruleDescription.description, rule.isActive, rule.amount.toString())
+            return this.ruleRepository.findByRuleTypeAndUserId(ruleType, userId).map { rule ->
+                GetRulesDTO(rule.id!!,rule.ruleDescription.description, rule.isActive, rule.amount)
             }
         }catch (e: Exception){
             throw e
@@ -31,17 +32,24 @@ class RuleService(
         }
     }
 
-    fun updateRule(ruleDTO: UpdateRuleDTO){
+    fun updateRule(ruleDTO: UpdateRuleDTO, userId: String): Rule{
         try{
-            val ruleDescription = this.ruleDescriptionRepository.findByDescription(ruleDTO.description)?: throw NotFoundException("Rule description was not found")
-            val configuration = this.configurationService.getUserConfiguration(ruleDTO.userId)
-            val rule = this.ruleRepository.findByRuleDescriptionAndConfiguration(ruleDescription, configuration) ?: throw NotFoundException("Rule was not found")
+            val ruleDescription = this.ruleDescriptionRepository.findByDescription(ruleDTO.name)?: throw NotFoundException("Rule description was not found")
+            val rule = this.ruleRepository.findByRuleDescriptionAndUserId(ruleDescription, userId) ?: throw NotFoundException("Rule was not found")
             rule.isActive = ruleDTO.isActive
-            rule.amount = ruleDTO.amount
+            rule.amount = ruleDTO.value
             this.ruleRepository.save(rule)
+            return rule
         }catch (e:Exception){
             throw e
         }
+    }
 
+    fun updateRules(updateRulesDTO: UpdateRulesDTO, userId: String): RulesDto {
+        val type: String = updateRulesDTO.type
+        updateRulesDTO.rules.forEach { rule ->
+            this.updateRule(rule, userId)
+        }
+        return RulesDto(getRulesByType(InputGetRulesDto(type), userId))
     }
 }

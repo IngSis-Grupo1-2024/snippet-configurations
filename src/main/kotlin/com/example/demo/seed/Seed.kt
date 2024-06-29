@@ -16,11 +16,8 @@ import javax.annotation.processing.Generated
 @Transactional
 @Generated
 class Seed @Autowired constructor(
-    private val configurationRepository: ConfigurationRepository,
     private val ruleDescriptionRepository: RuleDescriptionRepository,
-    private val ruleRepository: RuleRepository,
     private val languageRepository: LanguageRepository,
-    private val versionRepository: VersionRepository,
     private val ruleTypeRepository: RuleTypeRepository,
     private val variableTypeRepository: VariableTypeRepository
 
@@ -55,10 +52,7 @@ class Seed @Autowired constructor(
         this.ruleDescriptionRepository.save(camelCase)
         this.ruleDescriptionRepository.save(snakeCase)
         val language = Language("PRINTSCRIPT")
-        val firstVersion = Version("1.0.0", language)
-        val secondVersion = Version("1.1.0", language)
-        this.versionRepository.save(firstVersion)
-        this.versionRepository.save(secondVersion)
+        this.languageRepository.save(language)
         val env = VariableType("ENVIRONMENT")
         val input = VariableType("INPUT")
         val output = VariableType("OUTPUT")

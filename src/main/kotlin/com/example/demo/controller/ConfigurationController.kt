@@ -1,12 +1,15 @@
 package com.example.demo.controller
 import com.example.demo.dto.configuration.ConfigurationDTO
+import com.example.demo.dto.configuration.GetVersionInput
 import com.example.demo.dto.output.RulesDto
+import com.example.demo.dto.rule.GetRulesDTO
 import com.example.demo.dto.rule.InputGetRulesDto
 import com.example.demo.dto.rule.UpdateRuleDTO
 import com.example.demo.dto.rule.UpdateRulesDTO
 import com.example.demo.exception.NotFoundException
 import com.example.demo.service.ConfigurationService
 import jakarta.validation.Valid
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -22,35 +25,25 @@ import org.springframework.web.bind.annotation.RestController
 class ConfigurationController(private val configurationService: ConfigurationService) {
 
     @PostMapping("/configuration")
-    fun createConfiguration(@Valid @RequestBody configurationDTO: ConfigurationDTO): ResponseEntity<String> {
-        this.configurationService.createConfiguration(configurationDTO)
+    fun createConfiguration(@AuthenticationPrincipal jwt: Jwt, @Valid @RequestBody configurationDTO: ConfigurationDTO): ResponseEntity<String> {
+        this.configurationService.createConfiguration(configurationDTO, jwt.subject)
         return ResponseEntity.ok().build<String>()
     }
 
     @PostMapping("/configuration/update_rule")
-    fun addRule(@Valid @RequestBody updateRuleDTO: UpdateRuleDTO): ResponseEntity<String> {
-        this.configurationService.updateRule(updateRuleDTO)
+    fun updateVersion(@AuthenticationPrincipal jwt: Jwt, @Valid @RequestBody configurationDTO: ConfigurationDTO): ResponseEntity<String> {
+        this.configurationService.updateVersion(configurationDTO, jwt.subject)
         return ResponseEntity.ok().build<String>()
     }
 
-    @PostMapping("/configuration/update_rules")
-    fun updateRules(@AuthenticationPrincipal jwt: Jwt,
-                    @Valid @RequestBody updateRulesDTO: UpdateRulesDTO): ResponseEntity<RulesDto> {
-        val userId = jwt.subject
-        val rulesDto = this.configurationService.updateRules(updateRulesDTO.rules, userId)
-        return ResponseEntity.ok(rulesDto)
-    }
-
-    @PostMapping("/configuration/update")
-    fun updateVersion(@Valid @RequestBody configurationDTO: ConfigurationDTO): ResponseEntity<String> {
-        this.configurationService.updateVersion(configurationDTO)
-        return ResponseEntity.ok().build<String>()
-    }
-
-    @GetMapping("/configuration/rules")
-    fun getLintingRules(@RequestParam("userId") userId: String,
-                        @RequestParam("ruleType") ruleType: String): ResponseEntity<List<GetRulesDTO>> {
-        return ResponseEntity.ok(this.configurationService.getRulesByType(InputGetRulesDto(userId, ruleType)))
+    @GetMapping("/configuration/update_rules")
+    fun getVersion(@AuthenticationPrincipal jwt: Jwt, @Valid @RequestBody getVersionInput: GetVersionInput): ResponseEntity<String> {
+        try{
+            val version = this.configurationService.getVersionInput(jwt.subject, getVersionInput)
+            return ResponseEntity.status(HttpStatus.OK).body(version)
+        } catch (e: NotFoundException){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.message)
+        }
     }
 }
 
