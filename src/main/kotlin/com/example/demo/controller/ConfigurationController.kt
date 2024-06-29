@@ -13,6 +13,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
@@ -27,9 +28,8 @@ class ConfigurationController(private val configurationService: ConfigurationSer
     }
 
     @PostMapping("/configuration/update_rule")
-    fun updateRule(@AuthenticationPrincipal jwt: Jwt,
-                   @Valid @RequestBody updateRuleDTO: UpdateRuleDTO): ResponseEntity<String> {
-        this.configurationService.updateRule(updateRuleDTO, jwt.subject)
+    fun addRule(@Valid @RequestBody updateRuleDTO: UpdateRuleDTO): ResponseEntity<String> {
+        this.configurationService.updateRule(updateRuleDTO)
         return ResponseEntity.ok().build<String>()
     }
 
@@ -48,15 +48,9 @@ class ConfigurationController(private val configurationService: ConfigurationSer
     }
 
     @GetMapping("/configuration/rules")
-    fun getLintingRules(@AuthenticationPrincipal jwt: Jwt,
-                        @RequestParam("ruleType") ruleType: String): ResponseEntity<Any> {
-        try {
-            val rules = this.configurationService.getRulesByType(InputGetRulesDto(jwt.subject, ruleType))
-            return ResponseEntity.ok(rules)
-        } catch (e: NotFoundException) {
-            val response = ResponseEntity.status(HttpStatus.NOT_FOUND)
-            return response.body("The user has no $ruleType rules.")
-        }
+    fun getLintingRules(@RequestParam("userId") userId: String,
+                        @RequestParam("ruleType") ruleType: String): ResponseEntity<List<GetRulesDTO>> {
+        return ResponseEntity.ok(this.configurationService.getRulesByType(InputGetRulesDto(userId, ruleType)))
     }
 }
 

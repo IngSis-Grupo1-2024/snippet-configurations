@@ -21,22 +21,23 @@ class ConfigurationService(
 ) {
 
     fun createConfiguration(configurationDTO: ConfigurationDTO) {
-        val versionObject = this.versionRepository.findByNumber(configurationDTO.version) ?: this.versionRepository.save(Version(configurationDTO.version))
-        val language = this.languageRepository.findByName(configurationDTO.language) ?: this.languageRepository.save(Language(configurationDTO.language))
-        var configuration = this.configurationRepository.findByUserIdAndVersionAndLanguage(configurationDTO.userId, versionObject, language)
-        if(configuration == null) {
-            configuration = this.configurationRepository.save(Configuration(versionObject, language, configurationDTO.userId))
+        try {
+            val versionObject = this.versionRepository.findByNumber(configurationDTO.version)?: throw NotFoundException("Version not found")
+            val language = this.languageRepository.findByName(configurationDTO.language) ?: throw NotFoundException("Language not found")
+            val configuration = this.configurationRepository.save(Configuration(versionObject, language,configurationDTO.userId))
             seedRules(configuration)
+        }catch (e: Exception){
+            throw e
         }
     }
 
-    fun getRulesByType(inputGetRulesDto: InputGetRulesDto): RulesDto {
-        val ruleType = this.ruleTypeRepository.findByType(inputGetRulesDto.ruleType)!!
-        val configuration = this.configurationRepository.findByUserId(inputGetRulesDto.userId).first()
-        val rules: List<Rule> = this.ruleRepository.findByRuleTypeAndConfiguration(ruleType, configuration)
-        return RulesDto(rules.map { rule ->
-           GetRulesDTO(rule.id!!, rule.ruleDescription.description, rule.isActive, rule.amount)
-        })
+    fun getUserConfiguration(userId:String):Configuration{
+        try {
+            val configuration = this.configurationRepository.findByUserId(userId)?: throw NotFoundException("The user has no configuration")
+            return configuration
+        }catch (e:Exception){
+            throw e
+        }
     }
 
     fun updateVersion(configurationDTO: ConfigurationDTO) {
@@ -46,18 +47,6 @@ class ConfigurationService(
         this.configurationRepository.save(configuration)
     }
 
-    fun updateRule(ruleDTO: UpdateRuleDTO, userId: String): String {
-        val configuration = this.configurationRepository.findByUserId(userId).first()
-        val ruleDescription = this.ruleDescriptionRepository.findByDescription(ruleDTO.name)!!
-        val rule = this.ruleRepository.findByRuleDescriptionAndConfiguration(ruleDescription, configuration)!!
-        rule.isActive = ruleDTO.isActive
-        if (ruleDTO.value != null) {
-            if(ruleDTO.value!! > -1) rule.amount = ruleDTO.value!!
-        }
-        this.ruleRepository.save(rule)
-        return rule.ruleType.type
-    }
-
     fun updateRules(updateRulesDTO: List<UpdateRuleDTO>, userId: String): RulesDto {
         val type: String = updateRule(updateRulesDTO.first(), userId)
         updateRulesDTO.forEach { rule ->
@@ -65,6 +54,7 @@ class ConfigurationService(
         }
         return getRulesByType(InputGetRulesDto(userId, type))
     }
+
 
     private fun seedRules(configuration: Configuration){
         val formatting = ruleTypeRepository.findByType("FORMATTING")!!

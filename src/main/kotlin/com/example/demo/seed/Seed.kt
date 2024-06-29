@@ -6,6 +6,7 @@ import com.example.demo.repository.*
 import com.example.demo.testCase.model.entity.VariableType
 import com.example.demo.testCase.repository.VariableTypeRepository
 import jakarta.transaction.Transactional
+import org.aspectj.weaver.VersionedDataInputStream
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.CommandLineRunner
 import org.springframework.stereotype.Component
@@ -53,12 +54,11 @@ class Seed @Autowired constructor(
         this.ruleDescriptionRepository.save(literalAsArgument)
         this.ruleDescriptionRepository.save(camelCase)
         this.ruleDescriptionRepository.save(snakeCase)
-        val firstVersion = Version("1.0.0")
-        val secondVersion = Version("1.1.0")
+        val language = Language("PRINTSCRIPT")
+        val firstVersion = Version("1.0.0", language)
+        val secondVersion = Version("1.1.0", language)
         this.versionRepository.save(firstVersion)
         this.versionRepository.save(secondVersion)
-        val language = Language("PRINTSCRIPT")
-        this.languageRepository.save(language)
         val env = VariableType("ENVIRONMENT")
         val input = VariableType("INPUT")
         val output = VariableType("OUTPUT")

@@ -11,10 +11,6 @@ import jakarta.persistence.*
 data class Configuration(
 
     @ManyToOne
-    @JoinColumn(name = "version_id", nullable = false)
-    var version: Version,
-
-    @ManyToOne
     @JoinColumn(name = "language_id", nullable = false)
     var language: Language,
 
@@ -30,6 +26,6 @@ data class Configuration(
     var id: Long? = null
 
 
-    constructor() : this(Version(), Language(), "")
+    constructor() : this( Language(), "")
 
 }

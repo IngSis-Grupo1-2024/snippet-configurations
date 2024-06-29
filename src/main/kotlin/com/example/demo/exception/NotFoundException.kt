@@ -1,4 +1,3 @@
 package com.example.demo.exception
 
-
-class NotFoundException(string: String) : Exception(string)
+data class NotFoundException(override val message: String?) : RuntimeException(message)
