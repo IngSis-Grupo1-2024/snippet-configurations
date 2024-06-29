@@ -66,8 +66,8 @@ class ConfigurationService(
         configurationRepository.save(Configuration(language, userId, configurationDTO.version))
     }
 
-    fun getVersionInput(userId: String, versionInput: GetVersionInput) : String {
-        val language = this.languageRepository.findByName(versionInput.language)?: throw NotFoundException("Language not found")
+    fun getVersionInput(userId: String, languageStr: String) : String {
+        val language = this.languageRepository.findByName(languageStr)?: throw NotFoundException("Language not found")
         val config = this.configurationRepository.findByUserIdAndLanguage(userId, language)
         return config!!.version
     }

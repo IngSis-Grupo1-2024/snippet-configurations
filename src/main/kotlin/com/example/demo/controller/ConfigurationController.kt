@@ -14,12 +14,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.oauth2.jwt.Jwt
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.PutMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 @RestController
 class ConfigurationController(private val configurationService: ConfigurationService) {
@@ -30,16 +25,16 @@ class ConfigurationController(private val configurationService: ConfigurationSer
         return ResponseEntity.ok().build<String>()
     }
 
-    @PostMapping("/configuration/update_rule")
+    @PostMapping("/configuration/update_version")
     fun updateVersion(@AuthenticationPrincipal jwt: Jwt, @Valid @RequestBody configurationDTO: ConfigurationDTO): ResponseEntity<String> {
         this.configurationService.updateVersion(configurationDTO, jwt.subject)
         return ResponseEntity.ok().build<String>()
     }
 
-    @GetMapping("/configuration/update_rules")
-    fun getVersion(@AuthenticationPrincipal jwt: Jwt, @Valid @RequestBody getVersionInput: GetVersionInput): ResponseEntity<String> {
+    @GetMapping("/configuration/get_version/{language}")
+    fun getVersion(@AuthenticationPrincipal jwt: Jwt, @Valid @PathVariable language: String): ResponseEntity<String> {
         try{
-            val version = this.configurationService.getVersionInput(jwt.subject, getVersionInput)
+            val version = this.configurationService.getVersionInput(jwt.subject, language)
             return ResponseEntity.status(HttpStatus.OK).body(version)
         } catch (e: NotFoundException){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.message)
