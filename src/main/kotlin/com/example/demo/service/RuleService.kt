@@ -24,7 +24,7 @@ class RuleService(
         try{
             val ruleType = this.ruleTypeRepository.findByType(inputGetRulesDto.ruleType)?: throw NotFoundException("Rule type not found")
             return this.ruleRepository.findByRuleTypeAndUserId(ruleType, userId).map { rule ->
-                GetRulesDTO(rule.id!!,rule.ruleDescription.description, rule.isActive, rule.amount)
+                GetRulesDTO(rule.id!!,rule.ruleDescription.description, rule.isActive, rule.amount, rule.ruleDescription.ruleParent.name)
             }
         }catch (e: Exception){
             throw e

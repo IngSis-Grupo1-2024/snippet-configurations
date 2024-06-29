@@ -1,7 +1,6 @@
 package com.example.demo.service
 
 import com.example.demo.dto.configuration.ConfigurationDTO
-import com.example.demo.dto.configuration.GetVersionInput
 import com.example.demo.exception.NotFoundException
 import com.example.demo.model.*
 import com.example.demo.repository.*
@@ -12,8 +11,7 @@ class ConfigurationService(
     private val configurationRepository: ConfigurationRepository,
     private val ruleRepository: RuleRepository,
     private val languageRepository: LanguageRepository,
-    private val ruleTypeRepository: RuleTypeRepository,
-    private val ruleDescriptionRepository: RuleDescriptionRepository
+    private val ruleDescriptionRepository: RuleDescriptionRepository,
 ) {
 
     fun createConfiguration(configurationDTO: ConfigurationDTO, userId: String) {
@@ -30,34 +28,13 @@ class ConfigurationService(
 
 
     private fun seedRules(userId: String){
-        val formatting = ruleTypeRepository.findByType("FORMATTING")!!
-        val linting = ruleTypeRepository.findByType("LINTING")!!
+        val ruleDescriptions = ruleDescriptionRepository.findAll()
 
-        val ruleDescriptions = getRulesDescriptors(formatting, linting)
-
-        ruleDescriptions.forEach { (ruleType, description) ->
-            val ruleDescription = ruleDescriptionRepository.findByDescription(description)!!
-            if(ruleType == linting) this.ruleRepository.save(Rule(ruleType, userId, ruleDescription, null, false))
-            else this.ruleRepository.save(Rule(ruleType, userId, ruleDescription, 0, false))
+        ruleDescriptions.forEach { description ->
+            if(description.ruleType.type == "LINTING") this.ruleRepository.save(Rule(description.ruleType, userId, description, null, false))
+            else this.ruleRepository.save(Rule(description.ruleType, userId, description, 0, false))
         }
     }
-
-    private fun getRulesDescriptors(
-        formatting: RuleType,
-        linting: RuleType
-    ): List<Pair<RuleType, String>> =
-        listOf(
-            Pair(formatting, "SPACES BETWEEN ASSIGNATION"),
-            Pair(formatting, "SPACES BEFORE DECLARATION"),
-            Pair(formatting, "SPACES AFTER DECLARATION"),
-            Pair(formatting, "LINES AFTER PRINT"),
-            Pair(formatting, "TABS AFTER IF"),
-            Pair(linting, "IDENTIFIER IN FUNCTION"),
-            Pair(linting, "EXPRESSION IN FUNCTION"),
-            Pair(linting, "LITERAL IN FUNCTION"),
-            Pair(linting, "CAMEL CASE"),
-            Pair(linting, "SNAKE CASE")
-        )
 
     private fun seedLanguage(userId: String, configurationDTO: ConfigurationDTO) {
         val language = this.languageRepository.findByName(configurationDTO.language) ?: this.languageRepository.save(Language(configurationDTO.language))

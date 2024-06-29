@@ -1,15 +1,8 @@
 package com.example.demo.controller
 import com.example.demo.dto.configuration.ConfigurationDTO
-import com.example.demo.dto.configuration.GetVersionInput
-import com.example.demo.dto.output.RulesDto
-import com.example.demo.dto.rule.GetRulesDTO
-import com.example.demo.dto.rule.InputGetRulesDto
-import com.example.demo.dto.rule.UpdateRuleDTO
-import com.example.demo.dto.rule.UpdateRulesDTO
 import com.example.demo.exception.NotFoundException
 import com.example.demo.service.ConfigurationService
 import jakarta.validation.Valid
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal

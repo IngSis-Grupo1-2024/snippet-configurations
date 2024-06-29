@@ -28,6 +28,9 @@ dependencies {
 	runtimeOnly("org.postgresql:postgresql")
 	implementation("org.projectlombok:lombok")
 	annotationProcessor("org.projectlombok:lombok")
+	implementation("io.projectreactor.kotlin:reactor-kotlin-extensions")
+	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
+	testImplementation("io.projectreactor:reactor-test")
 }
 
 tasks.withType<KotlinCompile> {
