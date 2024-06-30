@@ -1,7 +1,6 @@
 package modules.configuration.service
 
 import modules.common.exception.NotFoundException
-import modules.configuration.controller.ConfigurationController
 import modules.configuration.input.ConfigurationInput
 import modules.configuration.persistence.entity.Configuration
 import modules.configuration.persistence.entity.Language
@@ -39,7 +38,10 @@ class ConfigurationService(
 
     private fun seedRules(userId: String){
         val rules = this.ruleRepository.findByUserId(userId)
-        if(rules.isNotEmpty()) return
+        if(rules.isNotEmpty()) {
+            log.info("Configuration for rules already exists")
+            return
+        }
         log.info("Creating configuration of rules for $userId")
         val ruleDescriptions = ruleDescriptionRepository.findAll()
 
@@ -47,6 +49,7 @@ class ConfigurationService(
             if(description.ruleType.type == "LINTING") this.ruleRepository.save(Rule(description.ruleType, userId, description, null, false))
             else this.ruleRepository.save(Rule(description.ruleType, userId, description, 0, false))
         }
+        log.info("Configuration for rules was saved")
     }
 
     private fun seedLanguage(userId: String, configurationInput: ConfigurationInput) {
@@ -55,12 +58,17 @@ class ConfigurationService(
             Language(configurationInput.language)
         )
         val config = configurationRepository.findByUserIdAndLanguage(userId, language)
-        if(config != null) return
+        if(config != null) {
+            log.info("Configuration for language ${configurationInput.language} already exists")
+            return
+        }
         configurationRepository.save(Configuration(language, userId, configurationInput.version))
+        log.info("Configuration for language ${configurationInput.language} was saved")
     }
 
     fun getVersionInput(userId: String, languageStr: String) : String {
-        val language = this.languageRepository.findByName(languageStr)?: throw NotFoundException("Language not found")
+        val language = this.languageRepository.findByName(languageStr) ?:
+            throw NotFoundException("There is no language for $languageStr")
         val config = this.configurationRepository.findByUserIdAndLanguage(userId, language)
         return config!!.version
     }

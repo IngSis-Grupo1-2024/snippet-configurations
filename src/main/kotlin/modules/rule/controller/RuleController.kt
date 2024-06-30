@@ -7,6 +7,7 @@ import modules.rule.input.UpdateRuleInput
 import modules.rule.input.UpdateRulesInput
 import jakarta.validation.Valid
 import modules.rule.service.RuleService
+import org.slf4j.LoggerFactory
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.oauth2.jwt.Jwt
@@ -15,9 +16,12 @@ import org.springframework.web.bind.annotation.*
 @RestController
 class RuleController(private val ruleService: RuleService) {
 
+    private val log = LoggerFactory.getLogger(RuleController::class.java)
+
     @GetMapping("/rules")
     fun getTypeRules(@AuthenticationPrincipal jwt: Jwt,
                      @RequestParam("ruleType") ruleType: String): ResponseEntity<RulesDto> {
+        log.info("Getting ${ruleType.lowercase()} rules")
         return ResponseEntity.ok(this.ruleService.getRulesByType(InputGetRules(ruleType), jwt.subject))
     }
 

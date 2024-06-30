@@ -16,23 +16,26 @@ class ConfigurationController(private val configurationService: ConfigurationSer
 
     @PostMapping("/configuration")
     fun createConfiguration(@AuthenticationPrincipal jwt: Jwt, @Valid @RequestBody configurationInput: ConfigurationInput): ResponseEntity<String> {
-        log.info("Creating default configuration in snippet configuration")
+        log.info("Creating default configuration")
         this.configurationService.createConfiguration(configurationInput, jwt.subject)
-        return ResponseEntity.ok().build<String>()
+        return ResponseEntity.ok().build()
     }
 
     @PostMapping("/configuration/update_version")
     fun updateVersion(@AuthenticationPrincipal jwt: Jwt, @Valid @RequestBody configurationInput: ConfigurationInput): ResponseEntity<String> {
+        log.info("Updating version of ${configurationInput.language} to ${configurationInput.version}")
         this.configurationService.updateVersion(configurationInput, jwt.subject)
-        return ResponseEntity.ok().build<String>()
+        return ResponseEntity.ok().build()
     }
 
     @GetMapping("/configuration/get_version/{language}")
     fun getVersion(@AuthenticationPrincipal jwt: Jwt, @Valid @PathVariable language: String): ResponseEntity<String> {
         try{
+            log.info("Getting version of $language")
             val version = this.configurationService.getVersionInput(jwt.subject, language)
             return ResponseEntity.status(HttpStatus.OK).body(version)
         } catch (e: NotFoundException){
+            log.error(e.message)
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.message)
         }
     }

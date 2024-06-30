@@ -1,5 +1,6 @@
 package modules.testCase.service
 
+import modules.rule.controller.RuleController
 import modules.testCase.model.dto.TestCaseDto
 import modules.testCase.model.dto.TestCasesDto
 import modules.testCase.model.entity.TestCase
@@ -9,6 +10,7 @@ import modules.testCase.model.input.TestCaseInput
 import modules.testCase.repository.TestCaseRepository
 import modules.testCase.repository.VariableRepository
 import modules.testCase.repository.VariableTypeRepository
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
@@ -22,7 +24,7 @@ class TestCaseService
         private val variableRepository: VariableRepository,
         private val variableTypeRepository: VariableTypeRepository
     ) : TestCaseServiceSpec {
-
+    private val log = LoggerFactory.getLogger(TestCaseService::class.java)
     override fun postTestCase(input: TestCaseInput): Pair<TestCaseDto, HttpStatus> {
         val testCase = testCaseRepository.findById(input.id.toLong())
         return if(testCase.isEmpty) Pair(createTestCase(input), HttpStatus.CREATED)
@@ -70,6 +72,7 @@ class TestCaseService
 
 
     private fun createTestCase(input: TestCaseInput): TestCaseDto {
+        log.info("Creating new test case ${input.name}")
         val testCase = testCaseRepository.save(TestCase(input.snippetId, input.name))
         addVariablesInTestCase(input.input, testCase, "INPUT")
         addVariablesInTestCase(input.output, testCase, "OUTPUT")
@@ -95,6 +98,7 @@ class TestCaseService
     }
 
     private fun updateTestCase(input: TestCaseInput, testCase: TestCase): TestCaseDto {
+        log.info("Updating an existing test case ${input.name}")
         testCase.variables.forEach { vars ->
             updateInput(vars, input.input, "INPUT")
             updateInput(vars, input.output, "OUTPUT")

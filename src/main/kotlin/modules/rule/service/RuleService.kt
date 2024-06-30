@@ -6,12 +6,14 @@ import modules.rule.input.InputGetRules
 import modules.rule.input.UpdateRuleInput
 import modules.rule.input.UpdateRulesInput
 import modules.common.exception.NotFoundException
+import modules.rule.controller.RuleController
 import modules.rule.persistence.entity.Rule
 import modules.rule.persistence.entity.RuleParent
 import modules.rule.persistence.repository.RuleDescriptionRepository
 import modules.rule.persistence.repository.RuleParentRepository
 import modules.rule.persistence.repository.RuleRepository
 import modules.rule.persistence.repository.RuleTypeRepository
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 
 
@@ -22,6 +24,7 @@ class RuleService(
     private val ruleRepository: RuleRepository,
     private val ruleParentRepository: RuleParentRepository,
 ) {
+    private val log = LoggerFactory.getLogger(RuleService::class.java)
 
     fun getRulesByType(inputGetRulesDto: InputGetRules, userId: String): RulesDto {
         try{
@@ -42,6 +45,7 @@ class RuleService(
             val rule = this.ruleRepository.findByRuleDescriptionAndUserId(ruleDescription, userId) ?: throw NotFoundException("Rule was not found")
             rule.isActive = ruleDTO.isActive
             rule.amount = ruleDTO.value
+            log.info("Saving update rule ${ruleDTO.name} to ${ruleDTO.value} and ${ruleDTO.isActive}")
             this.ruleRepository.save(rule)
             return rule
         }catch (e:Exception){
@@ -67,6 +71,7 @@ class RuleService(
         updateRulesInput.rules.forEach { rule ->
             this.updateRule(rule, userId)
         }
+        log.info("Updated rules for ${updateRulesInput.type}")
         return getRulesByType(InputGetRules(type), userId)
     }
 }
