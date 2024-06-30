@@ -1,4 +1,4 @@
-package org.austral.snippet.permission.server
+package modules.common.logs
 
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component

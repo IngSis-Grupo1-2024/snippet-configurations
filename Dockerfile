@@ -8,4 +8,5 @@ EXPOSE 8080
 RUN mkdir /app
 COPY --from=build /app/build/libs/snippet-configurations.jar /app/snippet-configurations.jar
 COPY newrelic/newrelic.jar /app/newrelic.jar
+COPY newrelic/newrelic.yml /app/newrelic.yml
 ENTRYPOINT ["java", "-jar", "-Dspring.profiles.active=production","-javaagent:/app/newrelic.jar","/app/snippet-configurations.jar"]
