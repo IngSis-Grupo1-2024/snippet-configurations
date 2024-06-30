@@ -20,7 +20,7 @@ class ConfigurationService(
     private val languageRepository: LanguageRepository,
     private val ruleDescriptionRepository: RuleDescriptionRepository,
 ) {
-    private val log = LoggerFactory.getLogger(ConfigurationController::class.java)
+    private val log = LoggerFactory.getLogger(ConfigurationService::class.java)
 
     fun createConfiguration(configurationInput: ConfigurationInput, userId: String) {
         seedLanguage(userId, configurationInput)
