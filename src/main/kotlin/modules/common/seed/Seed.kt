@@ -37,8 +37,6 @@ class Seed @Autowired constructor(
         saveRuleDescriptionFormat(formatting, emptyParent)
         saveRuleDescriptionSca(linting, print, readInput, identifierFormat)
 
-        savePrintScriptLanguage()
-
         saveVariableType()
     }
 
@@ -50,9 +48,6 @@ class Seed @Autowired constructor(
         this.variableTypeRepository.save(input)
         this.variableTypeRepository.save(output)
     }
-
-    private fun savePrintScriptLanguage() =
-        this.languageRepository.save(Language("PRINTSCRIPT"))
 
     private fun saveRuleDescriptionSca(
         linting: RuleType,

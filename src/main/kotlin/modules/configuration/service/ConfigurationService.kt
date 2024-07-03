@@ -27,9 +27,11 @@ class ConfigurationService(
     }
 
     fun updateVersion(configurationInput: ConfigurationInput, userId: String) {
-        val language = this.languageRepository.findByName(configurationInput.language) ?: this.languageRepository.save(
-            Language(configurationInput.language)
-        )
+        val language = this.languageRepository.findByName(configurationInput.language)
+        if(language == null) {
+            seedLanguage(userId, configurationInput)
+            return
+        }
         val configuration = this.configurationRepository.findByUserIdAndLanguage(userId, language)
         configuration!!.version = configurationInput.version
         this.configurationRepository.save(configuration)
