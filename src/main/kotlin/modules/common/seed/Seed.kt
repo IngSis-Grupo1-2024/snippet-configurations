@@ -1,6 +1,5 @@
 package modules.common.seed
 
-import modules.configuration.persistence.entity.Language
 import modules.testCase.model.entity.VariableType
 import modules.testCase.repository.VariableTypeRepository
 import jakarta.transaction.Transactional
@@ -21,7 +20,6 @@ import javax.annotation.processing.Generated
 @Generated
 class Seed @Autowired constructor(
     private val ruleDescriptionRepository: RuleDescriptionRepository,
-    private val languageRepository: LanguageRepository,
     private val ruleTypeRepository: RuleTypeRepository,
     private val variableTypeRepository: VariableTypeRepository,
     private val ruleParentRepository: RuleParentRepository,
