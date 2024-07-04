@@ -8,4 +8,5 @@ import org.springframework.stereotype.Repository
 @Repository
 interface RuleDescriptionRepository: JpaRepository<RuleDescription, Long> {
     fun findByDescriptionAndRuleParent(description: String, parent: RuleParent): RuleDescription?
+    fun findByDescription(description: String): RuleDescription?
 }

@@ -6,9 +6,8 @@ import modules.rule.input.InputGetRules
 import modules.rule.input.UpdateRuleInput
 import modules.rule.input.UpdateRulesInput
 import modules.common.exception.NotFoundException
-import modules.rule.controller.RuleController
 import modules.rule.persistence.entity.Rule
-import modules.rule.persistence.entity.RuleParent
+import modules.rule.persistence.entity.RuleDescription
 import modules.rule.persistence.repository.RuleDescriptionRepository
 import modules.rule.persistence.repository.RuleParentRepository
 import modules.rule.persistence.repository.RuleRepository
@@ -39,18 +38,58 @@ class RuleService(
 
     fun updateRule(ruleDTO: UpdateRuleInput, userId: String): Rule {
         try{
-            val ruleParent = this.ruleParentRepository.findByName(getLastWord(ruleDTO.name))
-            val ruleDescription = this.ruleDescriptionRepository.findByDescriptionAndRuleParent(getFirstWord(ruleDTO.name), ruleParent!!)
-                ?: throw NotFoundException("Rule description was not found")
-            val rule = this.ruleRepository.findByRuleDescriptionAndUserId(ruleDescription, userId) ?: throw NotFoundException("Rule was not found")
-            rule.isActive = ruleDTO.isActive
-            rule.amount = ruleDTO.value
-            log.info("Saving update rule ${ruleDTO.name} to ${ruleDTO.value} and ${ruleDTO.isActive}")
-            this.ruleRepository.save(rule)
-            return rule
+            val ruleDescription =
+                this.ruleDescriptionRepository.findByDescription(ruleDTO.name)
+                    ?: throw NotFoundException("Rule description was not found")
+            return updateSpecificRule(ruleDescription, userId, ruleDTO)
         }catch (e:Exception){
             throw e
         }
+    }
+
+    private fun updateSpecificRule(
+        ruleDescription: RuleDescription?,
+        userId: String,
+        ruleDTO: UpdateRuleInput
+    ): Rule {
+        if(ruleDescription == null) throw NotFoundException("Rule description was not found")
+        val rule = this.ruleRepository.findByRuleDescriptionAndUserId(ruleDescription, userId)
+            ?: throw NotFoundException("Rule was not found")
+        rule.isActive = ruleDTO.isActive
+        rule.amount = ruleDTO.value
+        log.info("Saving update rule ${ruleDTO.name} to ${ruleDTO.value} and ${ruleDTO.isActive}")
+        this.ruleRepository.save(rule)
+        return rule
+    }
+
+
+    fun updateRules(updateRulesInput: UpdateRulesInput, userId: String): RulesDto {
+        if(isLinting(updateRulesInput.type)) updateLintingRules(updateRulesInput, userId)
+        else updateFormatingRules(updateRulesInput, userId)
+        log.info("Updated rules for ${updateRulesInput.type}")
+        return getRulesByType(InputGetRules(updateRulesInput.type), userId)
+    }
+
+    private fun updateFormatingRules(updateRulesInput: UpdateRulesInput, userId: String) =
+        updateRulesInput.rules.forEach { rule ->
+            this.updateFormatingRule(rule, userId)
+        }
+
+    private fun updateFormatingRule(ruleDTO: UpdateRuleInput, userId: String): Rule {
+        val ruleDescription = this.ruleDescriptionRepository.findByDescription(ruleDTO.name)
+        return updateSpecificRule(ruleDescription, userId, ruleDTO)
+    }
+
+    private fun updateLintingRules(updateRulesInput: UpdateRulesInput, userId: String) =
+        updateRulesInput.rules.forEach { rule ->
+            this.updateLintingRule(rule, userId)
+        }
+
+    private fun updateLintingRule(ruleDTO: UpdateRuleInput, userId: String): Rule {
+        val ruleParent = this.ruleParentRepository.findByName(getLastWord(ruleDTO.name))
+        val ruleDescription =
+            this.ruleDescriptionRepository.findByDescriptionAndRuleParent(getFirstWord(ruleDTO.name), ruleParent!!)
+        return updateSpecificRule(ruleDescription, userId, ruleDTO)
     }
 
     private fun getLastWord(name: String): String {
@@ -66,12 +105,5 @@ class RuleService(
         else ""
     }
 
-    fun updateRules(updateRulesInput: UpdateRulesInput, userId: String): RulesDto {
-        val type: String = updateRulesInput.type
-        updateRulesInput.rules.forEach { rule ->
-            this.updateRule(rule, userId)
-        }
-        log.info("Updated rules for ${updateRulesInput.type}")
-        return getRulesByType(InputGetRules(type), userId)
-    }
+    private fun isLinting(type: String): Boolean = type == "LINTING"
 }

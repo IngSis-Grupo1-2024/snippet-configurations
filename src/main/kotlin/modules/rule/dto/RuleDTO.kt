@@ -2,11 +2,8 @@ package modules.rule.dto
 
 class RuleDTO(
     val id: Long,
-    var name:String,
-    var isActive:Boolean,
-    var value:Int?,
+    val name:String,
+    val isActive:Boolean,
+    val value:Int?,
     val parent: String
-) {
-
-
-}
+)
