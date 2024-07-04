@@ -5,7 +5,7 @@ import jakarta.persistence.*
 @Entity
 @Table(name = "RULE_TYPE")
 data class RuleType(
-    @Column(length = 512)
+    @Column(length = 512, unique = true, nullable = false)
     val type: String,//This is to know if it is for linting or for formatting
 ) {
     @Id

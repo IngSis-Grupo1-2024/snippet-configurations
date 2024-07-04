@@ -20,21 +20,15 @@ import org.springframework.security.web.SecurityFilterChain
 class OAuth2ResourceServerSecurityConfiguration(@Value("\${auth0.audience}")
                                                 val audience: String,
                                                 @Value("\${spring.security.oauth2.resourceserver.jwt.issuer-uri}")
-                                                val issuer: String,) {
+                                                val issuer: String,
+    ) {
     @Bean
     fun filterChain(http: HttpSecurity): SecurityFilterChain {
         http.authorizeHttpRequests {
             it
-                .requestMatchers(GET, "/configuration").hasAuthority("SCOPE_read:snippet")
-                .requestMatchers(GET, "/test_case/*").hasAuthority("SCOPE_read:snippet")
-                .requestMatchers(POST, "/test_case").hasAuthority("SCOPE_read:snippet")
-                .requestMatchers(DELETE, "/test_case/*").hasAuthority("SCOPE_read:snippet")
                 .anyRequest().authenticated()
         }
             .oauth2ResourceServer { it.jwt(withDefaults()) }
-            .cors {
-                it.configurationSource { CorsConfig().corsFilter() }
-            }
             .csrf {
                 it.disable()
             }
